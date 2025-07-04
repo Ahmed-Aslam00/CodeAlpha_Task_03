@@ -1,0 +1,182 @@
+import java.util.*;
+
+class Employee {
+    private String empId;
+    private String name;
+    private int leaveBalance;
+
+    public Employee(String empId, String name, int leaveBalance) {
+        this.empId = empId;
+        this.name = name;
+        this.leaveBalance = leaveBalance;
+    }
+
+    public String getEmpId() {
+        return empId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getLeaveBalance() {
+        return leaveBalance;
+    }
+
+    public void deductLeave(int days) {
+        leaveBalance -= days;
+    }
+
+    public void addLeave(int days) {
+        leaveBalance += days;
+    }
+}
+
+class LeaveRequest {
+    private String empId;
+    private int days;
+    private String status; // Pending, Approved, Rejected
+
+    public LeaveRequest(String empId, int days) {
+        this.empId = empId;
+        this.days = days;
+        this.status = "Pending";
+    }
+
+    public String getEmpId() {
+        return empId;
+    }
+
+    public int getDays() {
+        return days;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void approve() {
+        status = "Approved";
+    }
+
+    public void reject() {
+        status = "Rejected";
+    }
+}
+
+public class LeaveManagementSystem {
+    private static HashMap<String, Employee> employees = new HashMap<>();
+    private static ArrayList<LeaveRequest> requests = new ArrayList<>();
+    private static Scanner sc = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        seedEmployees();
+        int choice;
+        do {
+            System.out.println("\n--- Employee Leave Management System ---");
+            System.out.println("1. Submit Leave Request");
+            System.out.println("2. View My Leave Balance");
+            System.out.println("3. Admin: View All Leave Requests");
+            System.out.println("4. Admin: Approve/Reject Leave");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1 -> submitLeaveRequest();
+                case 2 -> viewLeaveBalance();
+                case 3 -> adminViewRequests();
+                case 4 -> adminProcessRequest();
+                case 5 -> System.out.println("Exiting system. Thank you!");
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        } while (choice != 5);
+    }
+
+    private static void seedEmployees() {
+        employees.put("E001", new Employee("E001", "Alice", 15));
+        employees.put("E002", new Employee("E002", "Bob", 10));
+        employees.put("E003", new Employee("E003", "Charlie", 20));
+    }
+
+    private static void submitLeaveRequest() {
+        System.out.print("Enter your Employee ID: ");
+        String empId = sc.nextLine();
+        Employee emp = employees.get(empId);
+
+        if (emp != null) {
+            System.out.print("Enter number of leave days: ");
+            int days = sc.nextInt();
+            sc.nextLine();
+
+            if (days <= emp.getLeaveBalance()) {
+                LeaveRequest lr = new LeaveRequest(empId, days);
+                requests.add(lr);
+                System.out.println("Leave request submitted successfully.");
+            } else {
+                System.out.println("Insufficient leave balance.");
+            }
+        } else {
+            System.out.println("Employee not found.");
+        }
+    }
+
+    private static void viewLeaveBalance() {
+        System.out.print("Enter your Employee ID: ");
+        String empId = sc.nextLine();
+        Employee emp = employees.get(empId);
+
+        if (emp != null) {
+            System.out.println("Hello " + emp.getName() + ", your leave balance is: " + emp.getLeaveBalance() + " days.");
+        } else {
+            System.out.println("Employee not found.");
+        }
+    }
+
+    private static void adminViewRequests() {
+        if (requests.isEmpty()) {
+            System.out.println("No leave requests available.");
+            return;
+        }
+
+        System.out.println("--- Leave Requests ---");
+        for (int i = 0; i < requests.size(); i++) {
+            LeaveRequest lr = requests.get(i);
+            System.out.println((i + 1) + ". Employee ID: " + lr.getEmpId() + ", Days: " + lr.getDays() + ", Status: " + lr.getStatus());
+        }
+    }
+
+    private static void adminProcessRequest() {
+        adminViewRequests();
+
+        System.out.print("Enter request number to process: ");
+        int index = sc.nextInt() - 1;
+        sc.nextLine();
+
+        if (index >= 0 && index < requests.size()) {
+            LeaveRequest lr = requests.get(index);
+            Employee emp = employees.get(lr.getEmpId());
+
+            if (lr.getStatus().equals("Pending")) {
+                System.out.print("Approve or Reject (A/R): ");
+                String action = sc.nextLine().toUpperCase();
+
+                if (action.equals("A")) {
+                    lr.approve();
+                    emp.deductLeave(lr.getDays());
+                    System.out.println("Leave approved.");
+                } else if (action.equals("R")) {
+                    lr.reject();
+                    System.out.println("Leave rejected.");
+                } else {
+                    System.out.println("Invalid action.");
+                }
+            } else {
+                System.out.println("This request has already been " + lr.getStatus().toLowerCase() + ".");
+            }
+        } else {
+            System.out.println("Invalid request number.");
+        }
+    }
+}
