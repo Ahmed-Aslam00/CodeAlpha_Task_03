@@ -1,0 +1,150 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+abstract class Booking {
+    protected String customerName;
+    protected String bookingType;
+
+    public Booking(String customerName, String bookingType) {
+        this.customerName = customerName;
+        this.bookingType = bookingType;
+    }
+
+    public void displayDetails() {
+        System.out.println("Customer Name: " + customerName);
+        System.out.println("Booking Type: " + bookingType);
+    }
+}
+
+class Flight extends Booking {
+    private String flightNumber;
+    private String destination;
+
+    public Flight(String customerName, String flightNumber, String destination) {
+        super(customerName, "Flight");
+        this.flightNumber = flightNumber;
+        this.destination = destination;
+    }
+
+    @Override
+    public void displayDetails() {
+        super.displayDetails();
+        System.out.println("Flight Number: " + flightNumber);
+        System.out.println("Destination: " + destination);
+    }
+}
+
+class Hotel extends Booking {
+    private String hotelName;
+    private int nights;
+
+    public Hotel(String customerName, String hotelName, int nights) {
+        super(customerName, "Hotel");
+        this.hotelName = hotelName;
+        this.nights = nights;
+    }
+
+    @Override
+    public void displayDetails() {
+        super.displayDetails();
+        System.out.println("Hotel Name: " + hotelName);
+        System.out.println("Nights: " + nights);
+    }
+}
+
+class Transport extends Booking {
+    private String vehicleType;
+    private String pickupLocation;
+
+    public Transport(String customerName, String vehicleType, String pickupLocation) {
+        super(customerName, "Transport");
+        this.vehicleType = vehicleType;
+        this.pickupLocation = pickupLocation;
+    }
+
+    @Override
+    public void displayDetails() {
+        super.displayDetails();
+        System.out.println("Vehicle Type: " + vehicleType);
+        System.out.println("Pickup Location: " + pickupLocation);
+    }
+}
+
+public class TravelBookingSystem {
+    private ArrayList<Booking> bookings = new ArrayList<>();
+    private Scanner sc = new Scanner(System.in);
+
+    public void start() {
+        int choice;
+        do {
+            System.out.println("\n--- Travel Booking System ---");
+            System.out.println("1. Book Flight");
+            System.out.println("2. Book Hotel");
+            System.out.println("3. Book Transport");
+            System.out.println("4. View Bookings");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+            sc.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1 -> bookFlight();
+                case 2 -> bookHotel();
+                case 3 -> bookTransport();
+                case 4 -> viewBookings();
+                case 5 -> System.out.println("Thank you for using the Travel Booking System!");
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        } while (choice != 5);
+    }
+
+    private void bookFlight() {
+        System.out.print("Enter customer name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter flight number: ");
+        String flightNumber = sc.nextLine();
+        System.out.print("Enter destination: ");
+        String destination = sc.nextLine();
+        bookings.add(new Flight(name, flightNumber, destination));
+        System.out.println("Flight booked successfully!");
+    }
+
+    private void bookHotel() {
+        System.out.print("Enter customer name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter hotel name: ");
+        String hotelName = sc.nextLine();
+        System.out.print("Enter number of nights: ");
+        int nights = sc.nextInt();
+        sc.nextLine();
+        bookings.add(new Hotel(name, hotelName, nights));
+        System.out.println("Hotel booked successfully!");
+    }
+
+    private void bookTransport() {
+        System.out.print("Enter customer name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter vehicle type: ");
+        String vehicle = sc.nextLine();
+        System.out.print("Enter pickup location: ");
+        String location = sc.nextLine();
+        bookings.add(new Transport(name, vehicle, location));
+        System.out.println("Transport booked successfully!");
+    }
+
+    private void viewBookings() {
+        if (bookings.isEmpty()) {
+            System.out.println("No bookings yet.");
+        } else {
+            for (Booking b : bookings) {
+                System.out.println("\n--- Booking Details ---");
+                b.displayDetails();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        TravelBookingSystem system = new TravelBookingSystem();
+        system.start();
+    }
+}
